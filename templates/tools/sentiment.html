@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Reddit Sentiment Analyzer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <script>
+        function handlePresetChange() {
+            const dropdown = document.getElementById("preset");
+            const subreddits = document.getElementById("subreddits");
+            if (dropdown.value !== "") subreddits.value = "";
+        }
+
+        function showSpinner() {
+            document.getElementById("spinner").style.display = "flex";
+        }
+
+        function copyEth() {
+            const input = document.getElementById('ethAddressInput');
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = document.querySelector('.copy-button');
+                btn.textContent = '✅';
+                setTimeout(() => (btn.textContent = '📋'), 2000);
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <main class="container">
+        <h1 class="tool-title">🧠 Reddit Sentiment Analyzer</h1>
+
+        <form method="post" onsubmit="showSpinner()" class="sentiment-form">
+            <div class="form-group">
+                <label for="preset">Choose a preset:</label>
+                <select name="preset" id="preset" onchange="handlePresetChange()">
+                    <option value="">-- None --</option>
+                    {% for key, subs in dropdown_presets.items() %}
+                    <option value="{{ key }}" {% if preset==key %}selected{% endif %}>
+                        {{ key.capitalize() }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="subreddits">Or enter subreddit names:</label>
+                <input type="text" id="subreddits" name="subreddits" value="{{ subreddits or '' }}"
+                    placeholder="e.g. bitcoin, ethereum" />
+            </div>
+
+            <button type="submit" class="primary-button">🔍 Analyze</button>
+        </form>
+
+        <div id="spinner" class="overlay-spinner" style="display:none;">
+            <div class="spinner"></div>
+            <p>Analyzing...</p>
+        </div>
+
+        {% if results %}
+        <section class="results">
+            <h2>Results</h2>
+            {% for sub, summary in results.items() %}
+            <div class="result-card">
+                <h3>{{ sub }}</h3>
+                <p>{{ summary }}</p>
+            </div>
+            {% endfor %}
+        </section>
+        {% endif %}
+
+        <!-- Donation Section -->
+        <section class="donation-bar" style="margin-top: 3rem;">
+            <h2>💖 Support This Tool</h2>
+            <p>If this helped you, consider donating below:</p>
+            <div class="donation-content">
+                <div class="donation-box">
+                    <h3>ETH Donation</h3>
+                    <img src="/static/images/eth_qr.png" alt="ETH QR Code" class="qr" />
+                    <div class="address-container">
+                        <input type="text" id="ethAddressInput" readonly
+                            value="0xa4c59855d0ed6d3d0295fb5535eb6243b53b46d8" />
+                        <button class="copy-button" onclick="copyEth()">📋</button>
+                    </div>
+                </div>
+
+                <div class="donation-box">
+                    <h3>Buy Me a Coffee</h3>
+                    <a href="https://buymeacoffee.com/your_local_dev" target="_blank" class="coffee-button">
+                        ☕ Click to Donate
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+
+</html>

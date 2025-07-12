@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <style>
+        .admin-header-fixed {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .admin-buttons-fixed a {
+            margin-left: 0.5rem;
+        }
+
+        .log-table-section {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .log-table th,
+        .log-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        .log-table th {
+            background-color: #f3f4f6;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .log-table tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .ua-cell {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .ua-cell:hover {
+            white-space: normal;
+            background: #fafafa;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="admin-header-fixed">
+            <h1 class="title">📊 Admin Dashboard</h1>
+            <div class="admin-buttons-fixed">
+                <a href="/" class="back-link">← Home</a>
+                <a href="/logout" class="logout-button">Log Out</a>
+            </div>
+        </div>
+
+        <section class="log-table-section">
+            <h2>Recent Tool Usage</h2>
+            <table class="log-table">
+                <thead>
+                    <tr>
+                        <th>Tool</th>
+                        <th>IP Address</th>
+                        <th>Timestamp (UTC)</th>
+                        <th>User Agent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log[0] }}</td>
+                        <td>{{ log[1] }}</td>
+                        <td>{{ log[2] }}</td>
+                        <td class="ua-cell" title="{{ log[3] }}">{{ log[3] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+</body>
+
+</html>

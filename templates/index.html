@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toolbox</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+    <!-- Login button now separate and fixed -->
+    <a href="/login" class="login-button-top">Admin</a>
+
+    <div class="container">
+        <header>
+            <h1 class="title">🧰 Toolbox</h1>
+        </header>
+
+        <main>
+            <p class="description">Welcome! Choose a tool below to get started:</p>
+
+            <div class="tool-grid">
+                <a href="/downloader" class="tool-card">
+                    <h2>YouTube Downloader</h2>
+                    <p>Download videos directly from YouTube using yt-dlp.</p>
+                </a>
+
+                <a href="/sentiment" class="tool-card">
+                    <h2>Reddit Sentiment Analyzer</h2>
+                    <p>Analyze mood and sentiment in subreddit threads.</p>
+                </a>
+
+                <a href="/trend" class="tool-card">
+                    <h2>Trend Analyzer <span class="beta-tag">BETA</span></h2>
+                    <p>Track emerging topics across Reddit and Google Trends.</p>
+                </a>
+            </div>
+
+            <!-- Donation Section -->
+            <section class="donation-bar">
+                <h2>💖 Support This Project</h2>
+                <p>If this helped you, consider a small donation below to keep it alive:</p>
+                <div class="donation-content">
+                    <div class="donation-box">
+                        <h3>ETH Donation</h3>
+                        <img src="/static/images/eth_qr.png" alt="ETH QR Code" class="qr" />
+                        <div class="address-container">
+                            <input type="text" id="ethAddress" readonly
+                                value="0xa4c59855d0ed6d3d0295fb5535eb6243b53b46d8" />
+                            <button class="copy-button" onclick="copyEth()">📋</button>
+                        </div>
+                    </div>
+
+                    <div class="donation-box">
+                        <h3>Buy Me a Coffee</h3>
+                        <a href="https://buymeacoffee.com/your_local_dev" target="_blank" class="coffee-button">
+                            ☕ Click to Donate
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function copyEth() {
+            const input = document.getElementById('ethAddress');
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = document.querySelector('.copy-button');
+                btn.textContent = '✅';
+                setTimeout(() => (btn.textContent = '📋'), 2000);
+            });
+        }
+    </script>
+</body>
+
+</html>

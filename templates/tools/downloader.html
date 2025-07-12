@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>YouTube Downloader</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{{ request.url_for('static', path='style.css') }}" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+    <main class="container">
+        <h1 class="tool-title">🎬 YouTube Downloader</h1>
+
+        {% if result %}
+        <div class="message-box">
+            <p>{{ result }}</p>
+        </div>
+        {% endif %}
+
+        <form method="POST" class="download-form" onsubmit="showLoading()">
+            <div class="form-group">
+                <label for="url">YouTube URL</label>
+                <input type="text" id="url" name="url" placeholder="Paste video or playlist link..." required />
+            </div>
+
+            <div class="form-group">
+                <span class="format-label">Format:</span>
+                <div class="radio-row">
+                    <label><input type="radio" name="format" value="mp4" checked /> MP4</label>
+                    <label><input type="radio" name="format" value="mp3" /> MP3</label>
+                </div>
+            </div>
+
+            <button type="submit" class="primary-button" id="submitBtn">⬇️ Download</button>
+        </form>
+
+        <section class="donation-bar" style="margin-top: 3rem;">
+            <h2>💖 Support This Tool</h2>
+            <p>If this helped you, consider donating below:</p>
+            <div class="donation-content">
+                <div class="donation-box">
+                    <h3>ETH Donation</h3>
+                    <img src="{{ request.url_for('static', path='images/eth_qr.png') }}" alt="ETH QR Code" class="qr" />
+                    <div class="address-container">
+                        <input type="text" id="ethAddress" readonly
+                            value="0xa4c59855d0ed6d3d0295fb5535eb6243b53b46d8" />
+                        <button class="copy-button" onclick="copyEth()">📋</button>
+                    </div>
+                </div>
+
+                <div class="donation-box">
+                    <h3>Buy Me a Coffee</h3>
+                    <a href="https://buymeacoffee.com/your_local_dev" target="_blank" class="coffee-button">
+                        ☕ Click to Donate
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        function showLoading() {
+            const overlay = document.getElementById('loadingOverlay');
+            const btn = document.getElementById('submitBtn');
+            overlay.style.display = 'flex';
+            btn.disabled = true;
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                btn.disabled = false;
+            }, 15000);
+        }
+
+        function copyEth() {
+            const input = document.getElementById('ethAddress');
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = document.querySelector('.copy-button');
+                btn.textContent = '✅';
+                setTimeout(() => (btn.textContent = '📋'), 2000);
+            });
+        }
+    </script>
+</body>
+
+</html>

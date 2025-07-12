@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+jinja2
+python-multipart
+aiofiles
+itsdangerous
+starlette
+sqlite-utils
+praw
+python-dotenv
+openai
+flask
+yt-dlp
+gunicorn
+Flask
+
