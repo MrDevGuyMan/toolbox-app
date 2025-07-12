@@ -13,6 +13,10 @@ logging.basicConfig(level=logging.INFO)
 
 
 def write_cookiefile():
+    """
+    Decodes the base64-encoded cookies from the YOUTUBE_COOKIES_B64 env var
+    and writes them to a local cookies.txt file for yt-dlp to use.
+    """
     cookie_data = os.getenv("YOUTUBE_COOKIES_B64")
     if cookie_data:
         with open("cookies.txt", "wb") as f:
@@ -24,14 +28,16 @@ def sanitize_filename(name):
 
 
 def download_video(url: str, format_choice: str) -> StreamingResponse:
-    write_cookiefile()  # <-- Safe to call here now
+    write_cookiefile()  # Decode and write cookies if provided
 
     temp_dir = tempfile.mkdtemp()
     audio_only = format_choice == "mp3"
 
+    # Configure yt_dlp options
     ydl_opts = {
         "outtmpl": os.path.join(temp_dir, "%(title).100s.%(ext)s"),
         "noplaylist": False,
+        "cookiefile": "cookies.txt",  # Pass cookies to yt-dlp
         "format": "bestaudio/best" if audio_only else "bestvideo+bestaudio/best",
         "quiet": True,
         "no_warnings": True,
