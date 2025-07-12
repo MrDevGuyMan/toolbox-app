@@ -6,6 +6,7 @@ from yt_dlp import YoutubeDL
 from fastapi import BackgroundTasks
 from typing import Literal
 
+# Configure basic logging (customize as needed)
 logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.INFO)
 
 
@@ -18,11 +19,16 @@ def write_cookiefile():
 
 
 def progress_hook(d):
+    """
+    Display download progress information.
+    This function is called by yt-dlp with status updates.
+    """
     if d.get('status') == 'downloading':
         percent = d.get('_percent_str', '').strip()
-        logging.info(f"Downloading: {percent}")
+        logging.info(f"Downloading: {percent} complete")
     elif d.get('status') == 'finished':
-        logging.info("Download finished. Starting post-processing...")
+        logging.info(
+            "Download finished; starting post-processing if required...")
 
 
 def download_video(url: str, format_choice: Literal["mp3", "mp4"], background_tasks: BackgroundTasks):
@@ -33,47 +39,31 @@ def download_video(url: str, format_choice: Literal["mp3", "mp4"], background_ta
         'outtmpl': os.path.join("downloads", '%(title)s.%(ext)s'),
         'cookiefile': 'cookies.txt',
         'progress_hooks': [progress_hook],
-        'noplaylist': True
+        # Prevent attempting to download entire playlists if a URL contains list= parameter.
+        'noplaylist': True,
     }
 
     if format_choice == 'mp3':
-        ydl_opts.update({
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192'
-            }]
-        })
+        ydl_opts['format'] = 'bestaudio/best'
+        ydl_opts['postprocessors'] = [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }]
     else:
         ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4'
 
     try:
         with YoutubeDL(ydl_opts) as ydl:
+
+            logging.info(f"Starting extraction for URL: {url}")
             info = ydl.extract_info(url, download=True)
-            file_path = ydl.prepare_filename(info)
+            filename = ydl.prepare_filename(info)
             if format_choice == 'mp3':
-                file_path = os.path.splitext(file_path)[0] + '.mp3'
-
-        logging.info(f"Download complete: {file_path}")
-
-        def cleanup():
-            try:
-                os.remove(file_path)
-                logging.info(f"Deleted file: {file_path}")
-            except Exception as e:
-                logging.warning(f"Cleanup failed: {e}")
-
-        background_tasks.add_task(cleanup)
-
-        return StreamingResponse(
-            open(file_path, "rb"),
-            media_type="application/octet-stream",
-            headers={
-                "Content-Disposition": f"attachment; filename={os.path.basename(file_path)}"
-            }
-        )
-
+                # Change the extension from video to mp3 after conversion
+                filename = os.path.splitext(filename)[0] + '.mp3'
+            logging.info(f"File saved as: {filename}")
+            return filename
     except Exception as e:
         logging.error(f"Download failed: {e}")
         raise e
