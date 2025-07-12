@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 def write_cookiefile():
-    cookie_data = os.getenv("YOUTUBE_COOKIES")
+    cookie_data = os.getenv("YOUTUBE_COOKIES_B64")
     if cookie_data:
         with open("cookies.txt", "wb") as f:
             f.write(base64.b64decode(cookie_data))
