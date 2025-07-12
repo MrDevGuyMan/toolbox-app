@@ -6,9 +6,17 @@ import tempfile
 import logging
 from fastapi.responses import StreamingResponse
 from yt_dlp import YoutubeDL, DownloadError
+import base64
 
 # Optional: Enable logs during development
 logging.basicConfig(level=logging.INFO)
+
+
+def write_cookiefile():
+    cookie_data = os.getenv("YOUTUBE_COOKIES")
+    if cookie_data:
+        with open("cookies.txt", "wb") as f:
+            f.write(base64.b64decode(cookie_data))
 
 
 def sanitize_filename(name):
@@ -16,10 +24,11 @@ def sanitize_filename(name):
 
 
 def download_video(url: str, format_choice: str) -> StreamingResponse:
+    write_cookiefile()  # <-- Safe to call here now
+
     temp_dir = tempfile.mkdtemp()
     audio_only = format_choice == "mp3"
 
-    # Configure yt_dlp options
     ydl_opts = {
         "outtmpl": os.path.join(temp_dir, "%(title).100s.%(ext)s"),
         "noplaylist": False,
@@ -45,7 +54,6 @@ def download_video(url: str, format_choice: str) -> StreamingResponse:
                 if audio_only:
                     filenames[0] = os.path.splitext(filenames[0])[0] + ".mp3"
 
-        # Playlist? => ZIP
         if len(filenames) > 1:
             zip_name = sanitize_filename(
                 info.get("title", f"playlist_{uuid.uuid4()}")) + ".zip"
@@ -59,7 +67,6 @@ def download_video(url: str, format_choice: str) -> StreamingResponse:
             final_path = filenames[0]
             download_name = os.path.basename(final_path)
 
-        # Return file as StreamingResponse
         def file_stream():
             with open(final_path, "rb") as f:
                 yield from f
