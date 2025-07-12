@@ -54,7 +54,12 @@ def download_video(url: str, format_choice: Literal["mp3", "mp4"]) -> str:
             filename = ydl.prepare_filename(info)
             if format_choice == 'mp3':
                 filename = os.path.splitext(filename)[0] + '.mp3'
+
             logging.info(f"File saved as: {filename}")
+
+            if not os.path.exists(filename) or os.path.getsize(filename) == 0:
+                raise Exception("Download failed or file incomplete")
+
             return filename
     except Exception as e:
         logging.error(f"Download failed: {e}")
