@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form, Response, Depends, BackgroundTasks
+from fastapi import FastAPI, Request, Form, Response, Depends, BackgroundTasks, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -72,7 +72,7 @@ DROPDOWN_PRESETS = {
     "memes": ["memes", "dankmemes", "wholesomememes"]
 }
 
-# Home
+# ------------------- Home -------------------
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -88,10 +88,14 @@ def downloader_form(request: Request):
 
 
 @app.post("/downloader")
-def downloader_submit(request: Request, background_tasks: BackgroundTasks, url: str = Form(...), format: str = Form("mp4")):
+def downloader_submit(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    url: str = Form(...),
+    format: str = Form("mp4")
+):
     log_activity(request, "downloader")
     try:
-        get_youtube_cookies()  # Decode base64 and create cookies.txt
         return download_video(url, format, background_tasks)
     except Exception as e:
         return templates.TemplateResponse("tools/downloader.html", {
@@ -187,15 +191,3 @@ def admin_dashboard(request: Request):
 def logout(request: Request):
     request.session.clear()
     return RedirectResponse("/", status_code=302)
-
-# ------------------- Cookie Decode -------------------
-
-
-def get_youtube_cookies():
-    b64 = os.getenv("YOUTUBE_COOKIES_B64")
-    if b64:
-        path = "cookies.txt"
-        with open(path, "wb") as f:
-            f.write(base64.b64decode(b64))
-        return path
-    return None

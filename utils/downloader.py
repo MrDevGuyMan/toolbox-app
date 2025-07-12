@@ -1,47 +1,31 @@
-import yt_dlp
 import os
-import logging
 import base64
+import logging
 from fastapi.responses import StreamingResponse
+from yt_dlp import YoutubeDL
 from fastapi import BackgroundTasks
+from typing import Literal
 
-# Configure logging
 logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.INFO)
 
 
 def write_cookiefile():
-    """
-    Write YouTube cookies from environment variable to cookies.txt file.
-    """
     b64 = os.getenv("YOUTUBE_COOKIES_B64")
     if b64:
         with open("cookies.txt", "wb") as f:
             f.write(base64.b64decode(b64))
+            logging.info("cookies.txt written from environment variable.")
 
 
 def progress_hook(d):
-    """
-    Display download progress information.
-    """
     if d.get('status') == 'downloading':
         percent = d.get('_percent_str', '').strip()
-        logging.info(f"Downloading: {percent} complete")
+        logging.info(f"Downloading: {percent}")
     elif d.get('status') == 'finished':
-        logging.info("Download finished; starting post-processing...")
+        logging.info("Download finished. Starting post-processing...")
 
 
-def download_video(url, format_choice, background_tasks: BackgroundTasks):
-    """
-    Download a video or extract audio from a URL using yt-dlp and stream it to user.
-
-    Parameters:
-        url (str): YouTube video URL
-        format_choice (str): 'mp4' or 'mp3'
-        background_tasks (BackgroundTasks): FastAPI task handler
-
-    Returns:
-        StreamingResponse: File streamed to user's browser
-    """
+def download_video(url: str, format_choice: Literal["mp3", "mp4"], background_tasks: BackgroundTasks):
     write_cookiefile()
     os.makedirs("downloads", exist_ok=True)
 
@@ -53,38 +37,40 @@ def download_video(url, format_choice, background_tasks: BackgroundTasks):
     }
 
     if format_choice == 'mp3':
-        ydl_opts['format'] = 'bestaudio/best'
-        ydl_opts['postprocessors'] = [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192'
-        }]
+        ydl_opts.update({
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192'
+            }]
+        })
     else:
         ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4'
 
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            logging.info(f"Starting extraction for URL: {url}")
+        with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
-            filename = ydl.prepare_filename(info)
+            file_path = ydl.prepare_filename(info)
             if format_choice == 'mp3':
-                filename = os.path.splitext(filename)[0] + '.mp3'
-            logging.info(f"File saved as: {filename}")
+                file_path = os.path.splitext(file_path)[0] + '.mp3'
 
-        download_name = os.path.basename(filename)
+        logging.info(f"Download complete: {file_path}")
 
-        def file_stream():
-            with open(filename, "rb") as f:
-                yield from f
+        def cleanup():
+            try:
+                os.remove(file_path)
+                logging.info(f"Deleted file: {file_path}")
+            except Exception as e:
+                logging.warning(f"Cleanup failed: {e}")
 
-        # Schedule file cleanup after response
-        background_tasks.add_task(os.remove, filename)
+        background_tasks.add_task(cleanup)
 
         return StreamingResponse(
-            file_stream(),
+            open(file_path, "rb"),
             media_type="application/octet-stream",
             headers={
-                "Content-Disposition": f"attachment; filename=\"{download_name}\""
+                "Content-Disposition": f"attachment; filename={os.path.basename(file_path)}"
             }
         )
 
