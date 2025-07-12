@@ -4,44 +4,44 @@ import zipfile
 import shutil
 import tempfile
 import logging
+import base64
 from fastapi.responses import StreamingResponse
 from yt_dlp import YoutubeDL, DownloadError
-import base64
 
-# Optional: Enable logs during development
 logging.basicConfig(level=logging.INFO)
-
-
-def write_cookiefile():
-    """
-    Decodes the base64-encoded cookies from the YOUTUBE_COOKIES_B64 env var
-    and writes them to a local cookies.txt file for yt-dlp to use.
-    """
-    cookie_data = os.getenv("YOUTUBE_COOKIES_B64")
-    if cookie_data:
-        with open("cookies.txt", "wb") as f:
-            f.write(base64.b64decode(cookie_data))
 
 
 def sanitize_filename(name):
     return "".join(c for c in name if c.isalnum() or c in (' ', '_', '-')).rstrip()
 
 
+def write_cookiefile():
+    """
+    Decode base64 cookies from env and write to cookies.txt
+    """
+    b64 = os.getenv("YOUTUBE_COOKIES_B64")
+    if b64:
+        with open("cookies.txt", "wb") as f:
+            f.write(base64.b64decode(b64))
+
+
 def download_video(url: str, format_choice: str) -> StreamingResponse:
-    write_cookiefile()  # Decode and write cookies if provided
+    """
+    Download a video (or audio) using yt-dlp and return a StreamingResponse
+    """
+    write_cookiefile()
 
     temp_dir = tempfile.mkdtemp()
     audio_only = format_choice == "mp3"
 
-    # Configure yt_dlp options
     ydl_opts = {
         "outtmpl": os.path.join(temp_dir, "%(title).100s.%(ext)s"),
-        "noplaylist": False,
-        "cookiefile": "cookies.txt",  # Pass cookies to yt-dlp
         "format": "bestaudio/best" if audio_only else "bestvideo+bestaudio/best",
+        "noplaylist": False,
         "quiet": True,
         "no_warnings": True,
-        "progress_hooks": [lambda d: logging.info(f"{d.get('status')}: {d.get('_percent_str')}")],
+        "cookiefile": "cookies.txt",
+        "progress_hooks": [lambda d: logging.info(f"{d.get('status')}: {d.get('_percent_str', '')}")],
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": "mp3",
@@ -76,19 +76,22 @@ def download_video(url: str, format_choice: str) -> StreamingResponse:
         def file_stream():
             with open(final_path, "rb") as f:
                 yield from f
-            shutil.rmtree(temp_dir)
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+        media_type = "application/zip" if final_path.endswith(
+            ".zip") else "application/octet-stream"
 
         return StreamingResponse(
             file_stream(),
-            media_type="application/zip" if final_path.endswith(
-                ".zip") else "application/octet-stream",
+            media_type=media_type,
             headers={
                 "Content-Disposition": f'attachment; filename="{download_name}"'}
         )
 
     except DownloadError as e:
-        shutil.rmtree(temp_dir)
+        shutil.rmtree(temp_dir, ignore_errors=True)
         raise Exception(f"Download failed: {str(e)}")
+
     except Exception as e:
-        shutil.rmtree(temp_dir)
+        shutil.rmtree(temp_dir, ignore_errors=True)
         raise e
