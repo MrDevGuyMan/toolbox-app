@@ -3,10 +3,9 @@ import base64
 import logging
 from fastapi.responses import StreamingResponse
 from yt_dlp import YoutubeDL
-from fastapi import BackgroundTasks
 from typing import Literal
 
-# Configure basic logging (customize as needed)
+# Configure logging
 logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.INFO)
 
 
@@ -19,10 +18,6 @@ def write_cookiefile():
 
 
 def progress_hook(d):
-    """
-    Display download progress information.
-    This function is called by yt-dlp with status updates.
-    """
     if d.get('status') == 'downloading':
         percent = d.get('_percent_str', '').strip()
         logging.info(f"Downloading: {percent} complete")
@@ -31,7 +26,7 @@ def progress_hook(d):
             "Download finished; starting post-processing if required...")
 
 
-def download_video(url: str, format_choice: Literal["mp3", "mp4"], background_tasks: BackgroundTasks):
+def download_video(url: str, format_choice: Literal["mp3", "mp4"]) -> str:
     write_cookiefile()
     os.makedirs("downloads", exist_ok=True)
 
@@ -39,7 +34,6 @@ def download_video(url: str, format_choice: Literal["mp3", "mp4"], background_ta
         'outtmpl': os.path.join("downloads", '%(title)s.%(ext)s'),
         'cookiefile': 'cookies.txt',
         'progress_hooks': [progress_hook],
-        # Prevent attempting to download entire playlists if a URL contains list= parameter.
         'noplaylist': True,
     }
 
@@ -55,15 +49,24 @@ def download_video(url: str, format_choice: Literal["mp3", "mp4"], background_ta
 
     try:
         with YoutubeDL(ydl_opts) as ydl:
-
             logging.info(f"Starting extraction for URL: {url}")
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
             if format_choice == 'mp3':
-                # Change the extension from video to mp3 after conversion
                 filename = os.path.splitext(filename)[0] + '.mp3'
             logging.info(f"File saved as: {filename}")
             return filename
     except Exception as e:
         logging.error(f"Download failed: {e}")
         raise e
+
+
+def stream_file(file_path: str) -> StreamingResponse:
+    file = open(file_path, "rb")
+    return StreamingResponse(
+        file,
+        media_type="application/octet-stream",
+        headers={
+            "Content-Disposition": f"attachment; filename={os.path.basename(file_path)}"
+        }
+    )

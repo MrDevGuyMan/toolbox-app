@@ -8,9 +8,10 @@ import sqlite3
 import base64
 from datetime import datetime
 from dotenv import load_dotenv
+
 from utils.reddit_scraper import fetch_subreddit_content
 from utils.ai_summarizer import summarize_sentiment
-from utils.downloader import download_video
+from utils.downloader import download_video, stream_file  # ✅ updated import
 
 load_dotenv()
 
@@ -21,10 +22,9 @@ app.add_middleware(SessionMiddleware, secret_key=os.getenv(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-# Ensure DB exists
-
 
 def init_db():
+    os.makedirs("database", exist_ok=True)
     conn = sqlite3.connect("database/logs.db")
     c = conn.cursor()
     c.execute('''
@@ -42,8 +42,6 @@ def init_db():
 
 init_db()
 
-# Activity Logger
-
 
 def log_activity(request: Request, tool_name: str):
     ip = request.client.host
@@ -56,14 +54,11 @@ def log_activity(request: Request, tool_name: str):
     conn.commit()
     conn.close()
 
-# Admin session check
-
 
 def get_admin_user(request: Request):
     return request.session.get("admin") == "true"
 
 
-# Presets for dropdown
 DROPDOWN_PRESETS = {
     "crypto": ["bitcoin", "ethereum", "cryptocurrency"],
     "gaming": ["gaming", "pcgaming", "xbox"],
@@ -72,14 +67,10 @@ DROPDOWN_PRESETS = {
     "memes": ["memes", "dankmemes", "wholesomememes"]
 }
 
-# ------------------- Home -------------------
-
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
-
-# ------------------- Downloader -------------------
 
 
 @app.get("/downloader", response_class=HTMLResponse)
@@ -96,14 +87,13 @@ def downloader_submit(
 ):
     log_activity(request, "downloader")
     try:
-        return download_video(url, format, background_tasks)
+        file_path = download_video(url, format)
+        return stream_file(file_path)  # ✅ stream the file to user
     except Exception as e:
         return templates.TemplateResponse("tools/downloader.html", {
             "request": request,
             "result": f"Error: {str(e)}"
         })
-
-# ------------------- Sentiment -------------------
 
 
 @app.get("/sentiment", response_class=HTMLResponse)
@@ -155,8 +145,6 @@ def sentiment_submit(request: Request, subreddits: str = Form(""), preset: str =
         "preset": preset,
         "dropdown_presets": DROPDOWN_PRESETS
     })
-
-# ------------------- Admin -------------------
 
 
 @app.get("/login", response_class=HTMLResponse)
