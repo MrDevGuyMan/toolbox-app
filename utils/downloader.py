@@ -1,3 +1,4 @@
+from fastapi.responses import FileResponse
 import os
 import base64
 import logging
@@ -66,12 +67,9 @@ def download_video(url: str, format_choice: Literal["mp3", "mp4"]) -> str:
         raise e
 
 
-def stream_file(file_path: str) -> StreamingResponse:
-    file = open(file_path, "rb")
-    return StreamingResponse(
-        file,
+def stream_file(file_path: str) -> FileResponse:
+    return FileResponse(
+        file_path,
         media_type="application/octet-stream",
-        headers={
-            "Content-Disposition": f"attachment; filename={os.path.basename(file_path)}"
-        }
+        filename=os.path.basename(file_path)
     )
