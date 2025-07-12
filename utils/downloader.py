@@ -3,9 +3,7 @@ import os
 import logging
 import base64
 from fastapi.responses import StreamingResponse
-from dotenv import load_dotenv
-
-load_dotenv()
+from fastapi import BackgroundTasks
 
 # Configure logging
 logging.basicConfig(format='[%(levelname)s] %(message)s', level=logging.INFO)
@@ -29,17 +27,17 @@ def progress_hook(d):
         percent = d.get('_percent_str', '').strip()
         logging.info(f"Downloading: {percent} complete")
     elif d.get('status') == 'finished':
-        logging.info(
-            "Download finished; starting post-processing if required...")
+        logging.info("Download finished; starting post-processing...")
 
 
-def download_video(url, format_choice):
+def download_video(url, format_choice, background_tasks: BackgroundTasks):
     """
     Download a video or extract audio from a URL using yt-dlp and stream it to user.
 
     Parameters:
         url (str): YouTube video URL
         format_choice (str): 'mp4' or 'mp3'
+        background_tasks (BackgroundTasks): FastAPI task handler
 
     Returns:
         StreamingResponse: File streamed to user's browser
@@ -73,12 +71,14 @@ def download_video(url, format_choice):
                 filename = os.path.splitext(filename)[0] + '.mp3'
             logging.info(f"File saved as: {filename}")
 
+        download_name = os.path.basename(filename)
+
         def file_stream():
             with open(filename, "rb") as f:
                 yield from f
-            os.remove(filename)
 
-        download_name = os.path.basename(filename)
+        # Schedule file cleanup after response
+        background_tasks.add_task(os.remove, filename)
 
         return StreamingResponse(
             file_stream(),

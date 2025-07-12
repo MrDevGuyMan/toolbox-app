@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form, Response, Depends
+from fastapi import FastAPI, Request, Form, Response, Depends, BackgroundTasks
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -88,17 +88,16 @@ def downloader_form(request: Request):
 
 
 @app.post("/downloader")
-def downloader_submit(request: Request, url: str = Form(...), format: str = Form("mp4")):
+def downloader_submit(request: Request, background_tasks: BackgroundTasks, url: str = Form(...), format: str = Form("mp4")):
     log_activity(request, "downloader")
     try:
         get_youtube_cookies()  # Decode base64 and create cookies.txt
-        return download_video(url, format)
+        return download_video(url, format, background_tasks)
     except Exception as e:
         return templates.TemplateResponse("tools/downloader.html", {
             "request": request,
             "result": f"Error: {str(e)}"
         })
-
 
 # ------------------- Sentiment -------------------
 
