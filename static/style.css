@@ -74,22 +74,30 @@ body {
     background-color: #3579c2;
 }
 
+.copy-button {
+    background-color: #ff8c00;
+}
+
+.copy-button:hover {
+    background-color: #e67600;
+}
+
 .coffee-button {
     display: inline-block;
-    padding: 0.6rem 1.2rem;
-    background: #ff813f;
-    color: #fff;
+    background-color: #ff8c00;
+    color: white;
+    padding: 0.5rem 1.2rem;
     border-radius: 8px;
-    font-weight: bold;
     text-decoration: none;
-    transition: background-color 0.2s ease;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
 }
 
 .coffee-button:hover {
-    background: #e96b2a;
+    background-color: #e67600;
 }
 
-/* Admin Login Top-Right */
+/* Login Top Button */
 .login-button-top {
     position: absolute;
     top: 1.2rem;
@@ -98,10 +106,6 @@ body {
     font-size: 0.75rem;
     border-radius: 4px;
     z-index: 1000;
-}
-
-.login-button-top:hover {
-    background-color: #2d6cd3;
 }
 
 /* Tool Grid */
@@ -184,6 +188,7 @@ body {
     border-radius: 8px;
     background: #fff;
     transition: border-color 0.2s ease;
+    width: 100%;
 }
 
 input:focus,
@@ -192,7 +197,7 @@ select:focus {
     outline: none;
 }
 
-/* Radios */
+/* Radio Buttons */
 .radio-row {
     display: flex;
     gap: 1.5rem;
@@ -219,34 +224,19 @@ select:focus {
     margin-right: 0.4rem;
 }
 
-/* Message Box */
-.message-box {
-    max-width: 600px;
-    margin: 1rem auto 2rem;
-    background: #e8f6e8;
-    border-left: 4px solid #4caf50;
-    padding: 1rem;
-    border-radius: 8px;
-    color: #2e7d32;
-    font-size: 0.95rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-/* Spinner */
-.overlay-spinner {
+/* Spinner Overlay */
+#loadingOverlay {
     display: none;
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.45);
     z-index: 9999;
-    color: #fff;
-    font-weight: 500;
-    font-size: 1.2rem;
     justify-content: center;
     align-items: center;
     flex-direction: column;
 }
 
+/* Spinner Itself */
 .spinner {
     width: 60px;
     height: 60px;
@@ -288,29 +278,46 @@ select:focus {
     color: #555;
 }
 
+/* Message Box */
+.message-box {
+    max-width: 600px;
+    margin: 1rem auto 2rem;
+    background: #e8f6e8;
+    border-left: 4px solid #4caf50;
+    padding: 1rem;
+    border-radius: 8px;
+    color: #2e7d32;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
 /* Donation */
 .donation-bar {
-    margin-top: 3rem;
+    margin: 3rem auto;
     padding: 2rem;
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    max-width: 700px;
     text-align: center;
 }
 
 .donation-content {
     display: flex;
-    justify-content: center;
-    gap: 2rem;
+    justify-content: space-around;
     flex-wrap: wrap;
+    gap: 2rem;
+    margin-top: 2rem;
 }
 
 .donation-box {
-    background: #f1f1f1;
-    padding: 1.5rem;
-    border-radius: 10px;
-    width: 300px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    flex: 1;
+    min-width: 260px;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    text-align: center;
 }
 
 .donation-box h3 {
@@ -320,23 +327,34 @@ select:focus {
 }
 
 .qr {
-    width: 160px;
-    margin: 0 auto 1rem;
+    width: 140px;
+    height: 140px;
+    margin: 1rem auto 0;
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     display: block;
-    border-radius: 8px;
-    border: 1px solid #ccc;
 }
 
 /* Address Container */
 .address-container {
+    margin-top: 1rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 0.5rem;
-    margin-top: 0.5rem;
 }
 
-/* Login Page */
+.address-container input {
+    border: none;
+    background: #e9ecef;
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-family: monospace;
+    width: 100%;
+}
+
+/* Login */
 .login-box {
     max-width: 400px;
     margin: 5rem auto;
@@ -387,84 +405,33 @@ select:focus {
     text-align: left;
 }
 
-.donation-bar {
-    margin: 3rem auto;
-    padding: 2rem;
-    border-radius: 12px;
-    background: #fff;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-    max-width: 700px;
-}
-
-.donation-content {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 2rem;
-    margin-top: 2rem;
-}
-
-.donation-box {
-    flex: 1;
-    min-width: 260px;
-    padding: 1rem;
-    background: #f9fafb;
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    text-align: center;
-}
-
-.address-container {
-    margin-top: 1rem;
-    display: flex;
-    align-items: center;
+/* Spinner */
+.overlay-spinner {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 9999;
+    color: #fff;
+    font-weight: 500;
+    font-size: 1.2rem;
     justify-content: center;
-    gap: 0.5rem;
+    align-items: center;
+    flex-direction: column;
 }
 
-.address-container input {
-    border: none;
-    background: #e9ecef;
-    padding: 0.5rem;
-    border-radius: 6px;
-    font-family: monospace;
-    width: 100%;
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid #ccc;
+    border-top: 6px solid #00b894;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
 }
 
-.copy-button {
-    background-color: #ff8c00;
-    color: white;
-    border: none;
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.copy-button:hover {
-    background-color: #e67600;
-}
-
-.coffee-button {
-    display: inline-block;
-    background-color: #ff8c00;
-    color: white;
-    padding: 0.5rem 1.2rem;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: background 0.3s ease;
-}
-
-.coffee-button:hover {
-    background-color: #e67600;
-}
-
-.qr {
-    margin-top: 1rem;
-    border-radius: 12px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    width: 140px;
-    height: 140px;
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
