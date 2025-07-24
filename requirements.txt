@@ -14,3 +14,65 @@ yt-dlp
 gunicorn
 Flask
 
+# Core scraping dependencies
+beautifulsoup4==4.13.4
+feedparser==6.0.11
+praw==7.8.1
+requests==2.32.4
+tweepy==4.16.0
+google-api-python-client==2.127.0  # added for YouTube API
+
+# 4chan scraping requires only this (already included)
+# requests==2.32.4
+
+# ML/NLP/data processing
+scikit-learn==1.7.0
+joblib==1.5.1
+numpy==2.3.1
+pandas==2.3.1
+scipy==1.16.0
+
+# Visualization, APIs, utility libs
+yfinance==0.2.65
+pytrends==4.9.2
+python-dotenv==1.1.1
+lxml==6.0.0
+
+# Low-level/networking deps
+curl_cffi==0.12.0
+cffi==1.17.1
+pycparser==2.22
+certifi==2025.7.14
+charset-normalizer==3.4.2
+idna==3.10
+urllib3==2.5.0
+oauthlib==3.3.1
+requests-oauthlib==2.0.0
+websocket-client==1.8.0
+websockets==15.0.1
+
+# Date/time
+python-dateutil==2.9.0.post0
+pytz==2025.2
+tzdata==2025.2
+
+# Misc
+platformdirs==4.3.8
+soupsieve==2.7
+sgmllib3k==1.0.0
+update-checker==0.18.0
+typing_extensions==4.14.1
+frozendict==2.4.6
+multitasking==0.0.11
+protobuf==6.31.1
+peewee==3.18.2
+six==1.17.0
+
+# Web app (Flask interface)
+Flask==3.0.3
+
+# Plotting
+matplotlib==3.9.0
+
+# NLP / Sentiment Analysis
+nltk==3.8.1

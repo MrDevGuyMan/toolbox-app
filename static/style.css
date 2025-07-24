@@ -386,3 +386,85 @@ select:focus {
     font-size: 0.95rem;
     text-align: left;
 }
+
+.donation-bar {
+    margin: 3rem auto;
+    padding: 2rem;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    max-width: 700px;
+}
+
+.donation-content {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.donation-box {
+    flex: 1;
+    min-width: 260px;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    text-align: center;
+}
+
+.address-container {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.address-container input {
+    border: none;
+    background: #e9ecef;
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-family: monospace;
+    width: 100%;
+}
+
+.copy-button {
+    background-color: #ff8c00;
+    color: white;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.copy-button:hover {
+    background-color: #e67600;
+}
+
+.coffee-button {
+    display: inline-block;
+    background-color: #ff8c00;
+    color: white;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.coffee-button:hover {
+    background-color: #e67600;
+}
+
+.qr {
+    margin-top: 1rem;
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    width: 140px;
+    height: 140px;
+}

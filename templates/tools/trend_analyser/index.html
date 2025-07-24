@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>📈 Trend Analyser</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .form-container {
+            max-width: 500px;
+            margin: 5rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+            position: relative;
+        }
+
+        .spinner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            display: none;
+            z-index: 10;
+        }
+
+        footer {
+            margin-top: 5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="form-container" id="formBox">
+            <div class="spinner-overlay" id="loadingSpinner">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <h2 class="text-center mb-4">📈 Trend Analyser</h2>
+            <form method="POST" onsubmit="showSpinner()">
+                <div class="mb-3">
+                    <label for="phrase" class="form-label">Enter a topic or industry and give it some time to load.
+                        If it's spinning, it's loading. Some sites take a minute to scrape:</label>
+                    <input type="text" class="form-control" id="phrase" name="phrase"
+                        placeholder="e.g. crypto, finance, aviation, tech" required>
+                </div>
+                {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Analyze</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <section class="donation-bar text-center">
+            <h2>💖 Support This Project</h2>
+            <p>If this helped you, consider a small donation below to keep it alive:</p>
+            <div class="donation-content">
+                <div class="donation-box">
+                    <h3>ETH Donation</h3>
+                    <img src="/static/eth_qr.png" alt="ETH QR Code" class="qr" width="140" height="140" />
+                    <div class="address-container">
+                        <input type="text" id="ethAddress" readonly
+                            value="0xa4c59855d0ed6d3d0295fb5535eb6243b53b46d8" />
+                        <button class="copy-button" onclick="copyEth()">📋</button>
+                    </div>
+                    <div id="copy-confirmation" style="display:none; color:green;">Address copied!</div>
+                </div>
+
+                <div class="donation-box">
+                    <h3>Buy Me a Coffee</h3>
+                    <a href="https://buymeacoffee.com/your_local_dev" target="_blank" class="coffee-button">
+                        ☕ Click to Donate
+                    </a>
+                </div>
+            </div>
+        </section>
+    </footer>
+
+    <script>
+        function showSpinner() {
+            document.getElementById("loadingSpinner").style.display = "flex";
+        }
+
+        function copyEth() {
+            const ethInput = document.getElementById("ethAddress");
+            navigator.clipboard.writeText(ethInput.value).then(() => {
+                const confirmation = document.getElementById("copy-confirmation");
+                confirmation.style.display = "block";
+                setTimeout(() => {
+                    confirmation.style.display = "none";
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+
+</html>

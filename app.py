@@ -13,6 +13,8 @@ from utils.reddit_scraper import fetch_subreddit_content
 from utils.ai_summarizer import summarize_sentiment
 from utils.downloader import download_video, stream_file  # ✅ updated import
 
+from routes.trend import router as trend_router  # ✅ NEW
+
 load_dotenv()
 
 # App initialization
@@ -21,6 +23,9 @@ app.add_middleware(SessionMiddleware, secret_key=os.getenv(
     "SESSION_SECRET", "supersecret"))
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+
+# ✅ Include Trend Analyser
+app.include_router(trend_router, prefix="/trend", tags=["Trend Analyser"])
 
 
 def init_db():
@@ -88,7 +93,8 @@ def downloader_submit(
     log_activity(request, "downloader")
     try:
         file_path = download_video(url, format)
-        return stream_file(file_path)  # ✅ stream the file to user
+        background_tasks.add_task(os.remove, file_path)
+        return stream_file(file_path)
     except Exception as e:
         return templates.TemplateResponse("tools/downloader.html", {
             "request": request,
