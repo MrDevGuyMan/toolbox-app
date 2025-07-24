@@ -9,3 +9,4 @@ __pycache__/
 # System
 .DS_Store
 venv/
+trends.sqlite
